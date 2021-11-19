@@ -1,0 +1,65 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PolicemanMovement : MonoBehaviour
+{
+    public float policemanRun = 5.0f;
+    public float policemanWalk = 2.0f;
+    public float rotationSpeed;
+
+    private float waitTime;
+    public float startWaitTime;
+    private Animator animator;
+
+    public Transform[] moveSpots;
+    private int actualSpotIndex;
+    private float policemanSpeed = 2.0f;
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        animator = GetComponent<Animator>();
+        waitTime = startWaitTime;
+        actualSpotIndex = 0;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, moveSpots[actualSpotIndex].position, policemanSpeed * Time.deltaTime);
+        Vector3 direction = moveSpots[actualSpotIndex].transform.position - transform.position;
+        Quaternion rotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.Lerp(transform.rotation, rotation, rotationSpeed*Time.deltaTime);
+
+        if(Vector3.Distance(transform.position, moveSpots[actualSpotIndex].position) < 0.2f)
+        {
+            if(waitTime <= 0)
+            {
+                if(actualSpotIndex == 3)
+                {
+                    actualSpotIndex=0;
+                }
+                else
+                {
+                    actualSpotIndex +=1;
+                    waitTime = startWaitTime;
+                }
+                if(actualSpotIndex % 2 == 0)
+                {
+                    policemanSpeed = policemanRun;
+                    animator.SetFloat("MoveSpeed",policemanSpeed);
+                }
+                else
+                {
+                    policemanSpeed = policemanWalk;
+                    animator.SetFloat("MoveSpeed",policemanSpeed);
+                }
+            }
+            else
+            {
+                waitTime -= Time.deltaTime;
+            }
+        }
+    }
+}
